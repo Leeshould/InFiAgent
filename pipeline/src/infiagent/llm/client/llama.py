@@ -51,7 +51,7 @@ class LlamaOpenAIClient(BaseLLM, ABC):
     def __init__(self, **data):
         super().__init__(**data)
         openai.api_key = ""
-        openai.api_base = "http://0.0.0.0:9729/v1"
+        openai.api_base = "http://127.0.0.1:9729/v1"
 
     @classmethod
     async def create(cls, config_data):

@@ -9,7 +9,7 @@ setup(
     url='https://github.com/InfiAgent/ADA-Agent',
     license='LICENSE.txt',
     description='An awesome package for InfiAgent.',
-    long_description=open('README.md').read(),
+    long_description=open('../README.md').read(),
     package_data={
         'infiagent.configs.agent_configs': ['*.yaml'],
         'infiagent.configs.tool_configs': ['*.yaml'],

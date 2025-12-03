@@ -64,10 +64,10 @@ class PythonSandBoxToolResponse:
 
 class AsyncPythonSandBoxTool(BaseTool):
     _KERNEL_CLIENTS: Dict[int, BlockingKernelClient] = {}
-    # LAUNCH_KERNEL_PY = (f"import os\nos.chdir('{root_directory}/tmp')\nfrom ipykernel import kernelapp as "
-    #                     f"app\napp.launch_new_instance()")
-    LAUNCH_KERNEL_PY = (f"from ipykernel import kernelapp as app\n"
-                    f"app. launch_new_instance()")
+    LAUNCH_KERNEL_PY = (f"import os\nos.chdir('{root_directory}/tmp')\nfrom ipykernel import kernelapp as "
+                        f"app\napp.launch_new_instance()")
+    # LAUNCH_KERNEL_PY = (f"from ipykernel import kernelapp as app\n"
+    #                 f"app.launch_new_instance()")
 
     def __init__(self, name, description, **kwargs):
         super().__init__(name, description, **kwargs)
@@ -129,58 +129,58 @@ class AsyncPythonSandBoxTool(BaseTool):
 
 
 
-        # ========== 关键修复：设置工作目录到 upload_files ==========
-        # 文件实际保存的位置
-        upload_dir = os.path.join(FILE_DIR, self.sandbox_id)
-        os.makedirs(upload_dir, exist_ok=True)
+    #     # ========== 关键修复：设置工作目录到 upload_files ==========
+    #     # 文件实际保存的位置
+    #     upload_dir = os.path.join(FILE_DIR, self.sandbox_id)
+    #     os.makedirs(upload_dir, exist_ok=True)
         
-        logger.info(f"[KERNEL SETUP] Setting working directory to: {upload_dir}")
+    #     logger.info(f"[KERNEL SETUP] Setting working directory to: {upload_dir}")
         
-        # 在 Kernel 中切换工作目录到上传文件目录
-        chdir_code = f"""
-        import os
-        import sys
+    #     # 在 Kernel 中切换工作目录到上传文件目录
+    #     chdir_code = f"""
+    #     import os
+    #     import sys
 
-        # 切换到文件上传目录
-        target_dir = r'{upload_dir}'
-        os. chdir(target_dir)
+    #     # 切换到文件上传目录
+    #     target_dir = r'{upload_dir}'
+    #     os.chdir(target_dir)
 
-        # 验证
-        current_dir = os.getcwd()
-        files = os.listdir('.')
+    #     # 验证
+    #     current_dir = os.getcwd()
+    #     files = os.listdir('.')
 
-        print('[KERNEL] Working directory set to:', current_dir)
-        print('[KERNEL] Files available:', files)
+    #     print('[KERNEL] Working directory set to:', current_dir)
+    #     print('[KERNEL] Files available:', files)
 
-        # 断言确保目录正确
-        assert current_dir == target_dir, f"Failed to set working directory!  Expected {{target_dir}}, got {{current_dir}}"
-    """
+    #     # 断言确保目录正确
+    #     assert current_dir == target_dir, f"Failed to set working directory!  Expected {{target_dir}}, got {{current_dir}}"
+    # """
         
-        kc.execute(chdir_code)
+    #     kc.execute(chdir_code)
         
-        # 等待设置完成并收集输出
-        setup_timeout = 0
-        while setup_timeout < 50:
-            try:
-                msg = kc.get_iopub_msg(timeout=0.2)
-                msg_type = msg. get('msg_type', '')
+    #     # 等待设置完成并收集输出
+    #     setup_timeout = 0
+    #     while setup_timeout < 50:
+    #         try:
+    #             msg = kc.get_iopub_msg(timeout=0.2)
+    #             msg_type = msg.get('msg_type', '')
                 
-                if msg_type == 'stream':
-                    output = msg['content']['text']
-                    logger.info(f"[KERNEL SETUP] {output. strip()}")
+    #             if msg_type == 'stream':
+    #                 output = msg['content']['text']
+    #                 logger.info(f"[KERNEL SETUP] {output.strip()}")
                 
-                if msg_type == 'error':
-                    error = '\n'.join(msg['content']['traceback'])
-                    logger.error(f"[KERNEL SETUP ERROR] {error}")
+    #             if msg_type == 'error':
+    #                 error = '\n'.join(msg['content']['traceback'])
+    #                 logger.error(f"[KERNEL SETUP ERROR] {error}")
                 
-                if msg_type == 'status' and msg['content']. get('execution_state') == 'idle':
-                    logger.info("[KERNEL SETUP] Working directory setup complete")
-                    break
+    #             if msg_type == 'status' and msg['content'].get('execution_state') == 'idle':
+    #                 logger.info("[KERNEL SETUP] Working directory setup complete")
+    #                 break
                     
-            except queue.Empty:
-                setup_timeout += 1
+    #         except queue.Empty:
+    #             setup_timeout += 1
         
-        # ==========================================================
+    #     # ==========================================================
         return kc
 
     async def set_sandbox_id(self, sandbox_id):
